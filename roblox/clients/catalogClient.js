@@ -10,7 +10,8 @@ const defaultSettings = {
 
 	batchSize: 100,
 
-	cacheExpiryInMilliseconds: 60 * 1000,
+	assetCacheExpiryInMilliseconds: 60 * 1000,
+	bundleCacheExpiryInMilliseconds: 60 * 1000,
 
 	retryCooldownInMilliseconds: 1000
 };
@@ -54,12 +55,12 @@ export default class {
 
 		return new Promise((resolve, reject) => {
 			this.assetDetailsBatchProcessor.push(assetId).then(asset => {
-				if (this.settings.cacheExpiryInMilliseconds > 0) {
+				if (this.settings.assetCacheExpiryInMilliseconds > 0) {
 					this.assetCache[assetId] = asset;
 			
 					setTimeout(() => {
 						delete this.assetCache[assetId];
-					}, this.settings.cacheExpiryInMilliseconds);
+					}, this.settings.assetCacheExpiryInMilliseconds);
 				}
 
 				resolve(asset);
@@ -75,12 +76,12 @@ export default class {
 
 		return new Promise((resolve, reject) => {
 			this.bundleDetailsBatchProcessor.push(bundleId).then(bundle => {
-				if (this.settings.cacheExpiryInMilliseconds > 0) {
+				if (this.settings.bundleCacheExpiryInMilliseconds > 0) {
 					this.bundleCache[bundleId] = bundle;
 			
 					setTimeout(() => {
 						delete this.bundleCache[bundleId];
-					}, this.settings.cacheExpiryInMilliseconds);
+					}, this.settings.bundleCacheExpiryInMilliseconds);
 				}
 
 				resolve(bundle);
