@@ -1,10 +1,16 @@
-import { RobloxHttpClient, CatalogClient } from "./index.js";
+import { RobloxHttpClient, CatalogClient, UsersClient } from "./index.js";
 
 const httpClient = new RobloxHttpClient({
 	requestTimeout: 30 * 1000
 });
 
 const catalogClient = new CatalogClient(httpClient, err => {
+	console.error("An unexpected error occurred while processing request", err);
+}, {
+	cacheExpiryInMilliseconds: 15 * 1000
+});
+
+const usersClient = new UsersClient(httpClient, err => {
 	console.error("An unexpected error occurred while processing request", err);
 }, {
 	cacheExpiryInMilliseconds: 15 * 1000
@@ -36,6 +42,18 @@ httpClient.authenticate(authenticationTicket).then(user => {
 		console.log(resellers);
 	}).catch(err => {
 		console.error("rip resellers", err);
+	});
+
+	usersClient.getUserNameById(3336955).then(userName => {
+		console.log("USER NAME:", userName);
+	}).catch(err => {
+		console.error("rip username", err);
+	});
+
+	usersClient.getUserIdByName("WebGL3D").then(userId => {
+		console.log("USER ID:", userId);
+	}).catch(err => {
+		console.error("rip userId", err);
 	});
 }).catch(err => {
 	console.error("rip authenticated user", err);
