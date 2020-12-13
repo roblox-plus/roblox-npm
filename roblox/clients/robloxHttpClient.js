@@ -11,6 +11,8 @@ const modifyOptions = options => {
 	}
 
 	options.handlers.push(new XsrfTokenHandler());
+	
+	return options;
 };
 
 export default class extends HttpClient {
