@@ -2,8 +2,6 @@ import { HttpRequest, HttpRequestError, httpMethods } from "@tix-factory/http";
 import BatchItemProcessor from "./../implementation/batchItemProcessor.js";
 
 const defaultSettings = {
-	// The catalog Api is pretty heavily throttled.
-	// By default we want to wait a while between requests, to enforce the maximum batch size when possible.
 	processDelay: 100,
 	minProcessDelay: 500,
 
@@ -59,7 +57,7 @@ export default class {
 					this.userIdsByNameCache[usernameCacheKey] = user.id;
 
 					setTimeout(() => {
-						delete this.userNamesByIdCache[userId];
+						delete this.userNamesByIdCache[user.id];
 						delete this.userIdsByNameCache[usernameCacheKey];
 					}, this.settings.cacheExpiry);
 				}
@@ -85,7 +83,7 @@ export default class {
 					this.userIdsByNameCache[usernameCacheKey] = user.id;
 
 					setTimeout(() => {
-						delete this.userNamesByIdCache[userId];
+						delete this.userNamesByIdCache[user.id];
 						delete this.userIdsByNameCache[cacheKey];
 						delete this.userIdsByNameCache[usernameCacheKey];
 					}, this.settings.cacheExpiry);

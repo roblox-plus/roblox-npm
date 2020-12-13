@@ -5,4 +5,5 @@ export { default as AssetTypesByName } from "./constants/assetTypesByName.js";
 // Clients
 export { default as RobloxHttpClient } from "./clients/robloxHttpClient.js";
 export { default as CatalogClient } from "./clients/catalogClient.js";
+export { default as ThumbnailsClient } from "./clients/thumbnailsClient.js";
 export { default as UsersClient } from "./clients/usersClient.js";
