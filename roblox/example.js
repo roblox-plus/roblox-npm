@@ -10,27 +10,33 @@ const catalogClient = new CatalogClient(httpClient, err => {
 	cacheExpiryInMilliseconds: 15 * 1000
 });
 
-catalogClient.getAsset(1272714).then(asset => {
-	console.log(asset);
-}).catch(err => {
-	console.error("rip wanwood antlers", err);
-});
-
-catalogClient.getAssetResaleData(2470750640).then(assetResaleData => {
-	console.log(assetResaleData);
-}).catch(err => {
-	console.error("rip the resale data", err);
-});
-
-catalogClient.getBundle(192).then(bundle => {
-	console.log(bundle);
-}).catch(err => {
-	console.error("rip korblox deathspeaker", err);
-});
-
 const authenticationTicket = "GET FROM https://auth.roblox.com/v1/authentication-ticket (HEADER: RBX-Authentication-Ticket)";
 httpClient.authenticate(authenticationTicket).then(user => {
 	console.log("authenticated!", user);
+
+	catalogClient.getAsset(1272714).then(asset => {
+		console.log(asset);
+	}).catch(err => {
+		console.error("rip wanwood antlers", err);
+	});
+	
+	catalogClient.getAssetResaleData(2470750640).then(assetResaleData => {
+		console.log(assetResaleData);
+	}).catch(err => {
+		console.error("rip the resale data", err);
+	});
+	
+	catalogClient.getBundle(192).then(bundle => {
+		console.log(bundle);
+	}).catch(err => {
+		console.error("rip korblox deathspeaker", err);
+	});
+
+	catalogClient.getAssetResellers(1272714).then(resellers => {
+		console.log(resellers);
+	}).catch(err => {
+		console.error("rip resellers", err);
+	});
 }).catch(err => {
 	console.error("rip authenticated user", err);
 });

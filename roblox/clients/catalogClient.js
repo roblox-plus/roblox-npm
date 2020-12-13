@@ -13,6 +13,7 @@ const defaultSettings = {
 	assetCacheExpiryInMilliseconds: 60 * 1000,
 	bundleCacheExpiryInMilliseconds: 60 * 1000,
 	resaleDataCacheExpiryInMilliseconds: 60 * 1000,
+	resellersDataCacheExpiryInMilliseconds: 60 * 1000,
 
 	retryCooldownInMilliseconds: 1000
 };
@@ -23,6 +24,7 @@ export default class {
 		this.assetCache = {};
 		this.bundleCache = {};
 		this.assetResaleCache = {};
+		this.assetResellersCache = {};
 
 		if (!settings) {
 			settings = {};
@@ -56,6 +58,15 @@ export default class {
 			processDelay: 0,
 			batchSize: 1
 		}, this.loadAssetResaleData.bind(this), errorHandler);
+
+		this.assetResellersBatchProcessor = new BatchItemProcessor({
+			// The asset resellers endpoint does not support batching.
+			// We use the batch processor anyway for the retries, and consistency.
+			// Additionally, we can hope someday it might support batching...
+			minProcessDelay: 1000,
+			processDelay: 0,
+			batchSize: 1
+		}, this.loadAssetResellers.bind(this), errorHandler);
 	}
 
 	getAsset(assetId) {
@@ -96,6 +107,31 @@ export default class {
 				}
 
 				resolve(assetResaleData);
+			}).catch(reject);
+		});
+	}
+
+	getAssetResellers(assetId, cursor) {
+		const cacheKey = `${assetId}_${cursor}`;
+		if (this.assetResellersCache.hasOwnProperty(cacheKey)) {
+			// I suppose there _could_ be a race condition here...
+			return Promise.resolve(this.assetResellersCache[cacheKey]);
+		}
+
+		return new Promise((resolve, reject) => {
+			this.assetResellersBatchProcessor.push({
+				assetId: assetId,
+				cursor: cursor
+			}).then(resellers => {
+				if (this.settings.resellersDataCacheExpiryInMilliseconds > 0) {
+					this.assetResellersCache[cacheKey] = resellers;
+
+					setTimeout(() => {
+						delete this.assetResellersCache[cacheKey];
+					}, this.settings.resellersDataCacheExpiryInMilliseconds);
+				}
+
+				resolve(resellers);
 			}).catch(reject);
 		});
 	}
@@ -296,6 +332,44 @@ export default class {
 				}
 			}).catch(reject);
 		});
+	}
 
+	loadAssetResellers(requests) {
+		return new Promise(async (resolve, reject) => {
+			const assetId = requests[0].assetId;
+			const cursor = requests[0].cursor || "";
+			const httpRequest = new HttpRequest(httpMethods.get, new URL(`https://economy.roblox.com/v1/assets/${assetId}/resellers?limit=100&cursor=${cursor}`));
+
+			this.httpClient.send(httpRequest).then(httpResponse => {
+				switch (httpResponse.statusCode) {
+					case 200:
+						const responseBody = JSON.parse(httpResponse.body.toString());
+						resolve([
+							{
+								item: requests[0],
+								// Someday I will regret not translating this response.
+								value: responseBody,
+								success: true
+							}
+						]);
+
+						return;
+					case 400:
+						resolve([
+							{
+								item: requests[0],
+								value: [],
+								success: true
+							}
+						]);
+
+						return;
+					default:
+						reject(new HttpRequestError(httpRequest, httpResponse));
+
+						return;
+				}
+			}).catch(reject);
+		});
 	}
 }
