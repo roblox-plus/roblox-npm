@@ -1,0 +1,30 @@
+name: publish
+
+on: push
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Builder Number Generator
+      uses: einaregilsson/build-number@v3
+      with:
+        token: ${{ secrets.github_token }}
+    - name: Setup Node
+      uses: actions/setup-node@v1
+      with:
+        node-version: '14'
+        registry-url: 'https://registry.npmjs.org'
+    - name: Replace Versions
+      run: |
+        node ./build/replaceVersions.js ./roblox/package.json 1.0.$BUILD_NUMBER
+    - name: Run npm install
+      run: |
+        npm install ./roblox
+    - name: Publish to npm
+      if: ${{ github.ref == 'refs/heads/main' }}
+      run: |
+        npm publish ./roblox --access public
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_PAT }}
