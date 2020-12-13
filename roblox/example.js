@@ -27,3 +27,10 @@ catalogClient.getBundle(192).then(bundle => {
 }).catch(err => {
 	console.error("rip korblox deathspeaker", err);
 });
+
+const authenticationTicket = "GET FROM https://auth.roblox.com/v1/authentication-ticket (HEADER: RBX-Authentication-Ticket)";
+httpClient.authenticate(authenticationTicket).then(user => {
+	console.log("authenticated!", user);
+}).catch(err => {
+	console.error("rip authenticated user", err);
+});
