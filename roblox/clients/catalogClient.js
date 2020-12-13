@@ -5,13 +5,14 @@ import BatchItemProcessor from "./../implementation/batchItemProcessor.js";
 const defaultSettings = {
 	// The catalog Api is pretty heavily throttled.
 	// By default we want to wait a while between requests, to enforce the maximum batch size when possible.
-	processDelay: 100,	
+	processDelay: 100,
 	minProcessDelay: 10 * 1000,
 
 	batchSize: 100,
 
 	assetCacheExpiryInMilliseconds: 60 * 1000,
 	bundleCacheExpiryInMilliseconds: 60 * 1000,
+	resaleDataCacheExpiryInMilliseconds: 60 * 1000,
 
 	retryCooldownInMilliseconds: 1000
 };
@@ -21,6 +22,7 @@ export default class {
 		this.httpClient = httpClient;
 		this.assetCache = {};
 		this.bundleCache = {};
+		this.assetResaleCache = {};
 
 		if (!settings) {
 			settings = {};
@@ -45,6 +47,15 @@ export default class {
 			processDelay: settings.processDelay,
 			batchSize: settings.batchSize
 		}, this.loadBundles.bind(this), errorHandler);
+
+		this.assetResaleBatchProcessor = new BatchItemProcessor({
+			// The asset resale data endpoint does not support batching.
+			// We use the batch processor anyway for the retries, and consistency.
+			// Additionally, we can hope someday it might support batching...
+			minProcessDelay: 1000,
+			processDelay: 0,
+			batchSize: 1
+		}, this.loadAssetResaleData.bind(this), errorHandler);
 	}
 
 	getAsset(assetId) {
@@ -57,13 +68,34 @@ export default class {
 			this.assetDetailsBatchProcessor.push(assetId).then(asset => {
 				if (this.settings.assetCacheExpiryInMilliseconds > 0) {
 					this.assetCache[assetId] = asset;
-			
+
 					setTimeout(() => {
 						delete this.assetCache[assetId];
 					}, this.settings.assetCacheExpiryInMilliseconds);
 				}
 
 				resolve(asset);
+			}).catch(reject);
+		});
+	}
+
+	getAssetResaleData(assetId) {
+		if (this.assetResaleCache.hasOwnProperty(assetId)) {
+			// I suppose there _could_ be a race condition here...
+			return Promise.resolve(this.assetResaleCache[assetId]);
+		}
+
+		return new Promise((resolve, reject) => {
+			this.assetResaleBatchProcessor.push(assetId).then(assetResaleData => {
+				if (this.settings.resaleDataCacheExpiryInMilliseconds > 0) {
+					this.assetResaleCache[assetId] = assetResaleData;
+
+					setTimeout(() => {
+						delete this.assetResaleCache[assetId];
+					}, this.settings.resaleDataCacheExpiryInMilliseconds);
+				}
+
+				resolve(assetResaleData);
 			}).catch(reject);
 		});
 	}
@@ -78,7 +110,7 @@ export default class {
 			this.bundleDetailsBatchProcessor.push(bundleId).then(bundle => {
 				if (this.settings.bundleCacheExpiryInMilliseconds > 0) {
 					this.bundleCache[bundleId] = bundle;
-			
+
 					setTimeout(() => {
 						delete this.bundleCache[bundleId];
 					}, this.settings.bundleCacheExpiryInMilliseconds);
@@ -113,7 +145,7 @@ export default class {
 				const results = [];
 				const responseBody = JSON.parse(httpResponse.body.toString());
 				const assetsById = Object.fromEntries(responseBody.data.map(a => [a.id, a]));
-				
+
 				assetIds.forEach(assetId => {
 					const asset = assetsById[assetId];
 					if (asset) {
@@ -140,7 +172,7 @@ export default class {
 
 								// Safety precaution? In case Roblox changes this from an int -> string?
 								// Wouldn't be the first time a breaking change has been made to a response body :shrug:
-								assetType: typeof(asset.assetType) === "number" ? AssetTypesById[asset.assetType] : asset.assetType,
+								assetType: typeof (asset.assetType) === "number" ? AssetTypesById[asset.assetType] : asset.assetType,
 
 								// TODO: The actual off sale date time... this requires there to be an item in the catalog with an off sale date time so I can figure out how to parse it.
 								// Roblox appears to be hide as much relevant documentation as possible to make third party development as difficult as possible.
@@ -175,7 +207,7 @@ export default class {
 				const results = [];
 				const responseBody = JSON.parse(httpResponse.body.toString());
 				const bundlesById = Object.fromEntries(responseBody.map(b => [b.id, b]));
-				
+
 				bundleIds.forEach(bundleId => {
 					const bundle = bundlesById[bundleId];
 					if (bundle) {
@@ -227,5 +259,43 @@ export default class {
 				resolve(results);
 			}).catch(reject);
 		});
+	}
+
+	loadAssetResaleData(assetIds) {
+		return new Promise(async (resolve, reject) => {
+			const httpRequest = new HttpRequest(httpMethods.get, new URL(`https://economy.roblox.com/v1/assets/${assetIds[0]}/resale-data`));
+
+			this.httpClient.send(httpRequest).then(httpResponse => {
+				switch (httpResponse.statusCode) {
+					case 200:
+						const responseBody = JSON.parse(httpResponse.body.toString());
+						resolve([
+							{
+								item: assetIds[0],
+								// Someday I will regret not translating this response.
+								value: responseBody,
+								success: true
+							}
+						]);
+
+						return;
+					case 400:
+						resolve([
+							{
+								item: assetIds[0],
+								value: null,
+								success: true
+							}
+						]);
+
+						return;
+					default:
+						reject(new HttpRequestError(httpRequest, httpResponse));
+
+						return;
+				}
+			}).catch(reject);
+		});
+
 	}
 }

@@ -16,6 +16,12 @@ catalogClient.getAsset(1272714).then(asset => {
 	console.error("rip wanwood antlers", err);
 });
 
+catalogClient.getAssetResaleData(2470750640).then(assetResaleData => {
+	console.log(assetResaleData);
+}).catch(err => {
+	console.error("rip the resale data", err);
+});
+
 catalogClient.getBundle(192).then(bundle => {
 	console.log(bundle);
 }).catch(err => {
