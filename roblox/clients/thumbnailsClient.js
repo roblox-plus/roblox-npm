@@ -117,19 +117,16 @@ export default class {
 	loadThumbnails(requests) {
 		return new Promise(async (resolve, reject) => {
 			const httpRequest = new HttpRequest(httpMethods.post, new URL(`https://thumbnails.roblox.com/v1/batch`));
-			const requestBody = JSON.stringify(requests.map(r => {
+			httpRequest.addOrUpdateHeader("Content-Type", "application/json");
+			httpRequest.addOrUpdateHeader("Content-Encoding", "gzip");
+			httpRequest.body = Buffer.from(JSON.stringify(requests.map(r => {
 				return {
 					requestId: `${r.type}_${r.id}_${r.size}`,
 					targetId: r.id,
 					size: r.size,
 					type: r.type
 				};
-			}));
-
-			console.log("HOOPLA", requestBody);
-
-			httpRequest.addOrUpdateHeader("Content-Type", "application/json");
-			httpRequest.body = Buffer.from(requestBody);
+			})));
 
 			this.httpClient.send(httpRequest).then(httpResponse => {
 				if (httpResponse.statusCode !== 200) {

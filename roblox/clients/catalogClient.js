@@ -161,6 +161,7 @@ export default class {
 		return new Promise(async (resolve, reject) => {
 			const httpRequest = new HttpRequest(httpMethods.post, new URL(`https://catalog.roblox.com/v1/catalog/items/details`));
 			httpRequest.addOrUpdateHeader("Content-Type", "application/json");
+			httpRequest.addOrUpdateHeader("Content-Encoding", "gzip");
 			httpRequest.body = Buffer.from(JSON.stringify({
 				items: assetIds.map(i => {
 					return {
