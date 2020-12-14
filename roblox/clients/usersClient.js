@@ -99,6 +99,7 @@ export default class {
 		return new Promise(async (resolve, reject) => {
 			const httpRequest = new HttpRequest(httpMethods.post, new URL(`https://users.roblox.com/v1/usernames/users`));
 			httpRequest.addOrUpdateHeader("Content-Type", "application/json");
+			httpRequest.addOrUpdateHeader("Content-Encoding", "gzip");
 			httpRequest.body = Buffer.from(JSON.stringify({
 				usernames: userNames.map(u => u.toLowerCase()),
 				excludeBannedUsers: false
@@ -128,6 +129,7 @@ export default class {
 		return new Promise(async (resolve, reject) => {
 			const httpRequest = new HttpRequest(httpMethods.post, new URL(`https://users.roblox.com/v1/users`));
 			httpRequest.addOrUpdateHeader("Content-Type", "application/json");
+			httpRequest.addOrUpdateHeader("Content-Encoding", "gzip");
 			httpRequest.body = Buffer.from(JSON.stringify({
 				userIds: userIds,
 				excludeBannedUsers: false

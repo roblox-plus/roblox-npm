@@ -6,19 +6,19 @@
 	"type": "module",
 	"scripts": {},
 	"repository": {
-	  "type": "git",
-	  "url": "git+https://github.com/roblox-plus/roblox-npm.git"
+		"type": "git",
+		"url": "git+https://github.com/roblox-plus/roblox-npm.git"
 	},
 	"keywords": [
-	  "roblox"
+		"roblox"
 	],
 	"author": "roblox-plus",
 	"license": "MIT",
 	"bugs": {
-	  "url": "https://github.com/roblox-plus/roblox-npm/issues"
+		"url": "https://github.com/roblox-plus/roblox-npm/issues"
 	},
 	"homepage": "https://github.com/roblox-plus/roblox-npm/blob/main/roblox",
 	"dependencies": {
-	  "@tix-factory/http": "^2.0.78"
+		"@tix-factory/http": "^2.0.84"
 	}
 }
