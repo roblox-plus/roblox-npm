@@ -166,9 +166,7 @@ export default class {
 				items: assetIds.map(i => {
 					return {
 						id: i,
-						itemType: "Asset",
-						key: `Asset_${i}`,
-						thumbnailType: "assetThumbnail"
+						itemType: "Asset"
 					};
 				})
 			}));
@@ -211,9 +209,7 @@ export default class {
 								// Wouldn't be the first time a breaking change has been made to a response body :shrug:
 								assetType: typeof (asset.assetType) === "number" ? AssetTypesById[asset.assetType] : asset.assetType,
 
-								// TODO: The actual off sale date time... this requires there to be an item in the catalog with an off sale date time so I can figure out how to parse it.
-								// Roblox appears to be hide as much relevant documentation as possible to make third party development as difficult as possible.
-								offSaleDateTime: null
+								offSaleDateTime: asset.offSaleDeadline
 							},
 							success: true
 						});
