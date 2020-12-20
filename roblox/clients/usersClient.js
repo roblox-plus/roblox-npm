@@ -1,5 +1,5 @@
 import { HttpRequest, HttpRequestError, httpMethods } from "@tix-factory/http";
-import BatchItemProcessor from "./../implementation/batchItemProcessor.js";
+import { BatchItemProcessor } from "@tix-factory/queueing";
 
 const defaultSettings = {
 	processDelay: 100,

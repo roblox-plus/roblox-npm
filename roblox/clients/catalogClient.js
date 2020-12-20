@@ -1,6 +1,6 @@
 import { HttpRequest, HttpRequestError, httpMethods } from "@tix-factory/http";
+import { BatchItemProcessor } from "@tix-factory/queueing";
 import AssetTypesById from "./../constants/assetTypesById.js";
-import BatchItemProcessor from "./../implementation/batchItemProcessor.js";
 
 const defaultSettings = {
 	// The catalog Api is pretty heavily throttled.
