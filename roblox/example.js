@@ -22,10 +22,7 @@ const thumbnailsClient = new ThumbnailsClient(httpClient, err => {
 	cacheExpiryInMilliseconds: 15 * 1000
 });
 
-const authenticationTicket = "GET FROM https://auth.roblox.com/v1/authentication-ticket (HEADER: RBX-Authentication-Ticket)";
-httpClient.authenticate(authenticationTicket).then(user => {
-	console.log("authenticated!", user);
-
+const runTests = (user) => {
 	catalogClient.getAsset(1272714).then(asset => {
 		console.log(asset);
 	}).catch(err => {
@@ -44,11 +41,13 @@ httpClient.authenticate(authenticationTicket).then(user => {
 		console.error("rip korblox deathspeaker", err);
 	});
 
-	catalogClient.getAssetResellers(1272714).then(resellers => {
-		console.log(resellers);
-	}).catch(err => {
-		console.error("rip resellers", err);
-	});
+	if (user) {
+		catalogClient.getAssetResellers(1272714).then(resellers => {
+			console.log(resellers);
+		}).catch(err => {
+			console.error("rip resellers", err);
+		});
+	}
 
 	usersClient.getUserNameById(3336955).then(userName => {
 		console.log("USER NAME:", userName);
@@ -79,6 +78,13 @@ httpClient.authenticate(authenticationTicket).then(user => {
 	}).catch(err => {
 		console.error("rip bundle thumbnail", err);
 	});
+};
+
+const authenticationTicket = "GET FROM https://auth.roblox.com/v1/authentication-ticket (HEADER: RBX-Authentication-Ticket)";
+httpClient.authenticate(authenticationTicket).then(user => {
+	console.log("authenticated!", user);
+	runTests(user);
 }).catch(err => {
 	console.error("rip authenticated user", err);
+	runTests(null);
 });
