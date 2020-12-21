@@ -185,6 +185,7 @@ export default class {
 					const asset = assetsById[assetId];
 					if (asset) {
 						const itemRestrictions = asset.itemRestrictions || [];
+
 						results.push({
 							item: assetId,
 							value: {
@@ -192,7 +193,7 @@ export default class {
 
 								name: asset.name,
 
-								description: asset.description,
+								description: asset.description || "",
 
 								price: asset.price === 0 ? 0 : (asset.price || null),
 
@@ -201,7 +202,7 @@ export default class {
 									type: asset.creatorType
 								},
 
-								productId: asset.productId,
+								productId: asset.productId || null,
 
 								limited: itemRestrictions.includes("LimitedUnqiue") || itemRestrictions.includes("Limited"),
 
@@ -209,7 +210,7 @@ export default class {
 								// Wouldn't be the first time a breaking change has been made to a response body :shrug:
 								assetType: typeof (asset.assetType) === "number" ? AssetTypesById[asset.assetType] : asset.assetType,
 
-								offSaleDateTime: asset.offSaleDeadline
+								offSaleDateTime: this.parseDateTime(asset.offSaleDeadline)
 							},
 							success: true
 						});
@@ -247,7 +248,7 @@ export default class {
 						const resultBundle = {
 							id: bundle.id,
 							name: bundle.name,
-							description: bundle.description,
+							description: bundle.description || "",
 							bundleType: bundle.bundleType,
 
 							creator: {
@@ -267,7 +268,8 @@ export default class {
 							}),
 
 							price: null,
-							productId: null
+							productId: null,
+							offSaleDateTime: this.parseDateTime(bundle.offSaleDeadline)
 						};
 
 						if (bundle.product) {
@@ -368,5 +370,22 @@ export default class {
 				}
 			}).catch(reject);
 		});
+	}
+
+	parseDateTime(dateTimeString) {
+		if (!dateTimeString) {
+			return null;
+		}
+
+		try {
+			const dateTime = new Date(dateTimeString);
+
+			// Round down to the nearest second because Roblox can be inconsistent returning milliseconds
+			// and consistency is better than down to the millisecond accuracy... right?
+			return new Date(Math.floor(dateTime.getTime() / 1000) * 1000);
+		} catch (e) {
+			// We should probably log this... oh well.
+			return null;
+		}
 	}
 }
