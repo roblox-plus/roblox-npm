@@ -204,7 +204,7 @@ export default class {
 
 								productId: asset.productId || null,
 
-								limited: itemRestrictions.includes("LimitedUnqiue") || itemRestrictions.includes("Limited"),
+								limited: itemRestrictions.includes("LimitedUnique") || itemRestrictions.includes("Limited"),
 
 								// Safety precaution? In case Roblox changes this from an int -> string?
 								// Wouldn't be the first time a breaking change has been made to a response body :shrug:
