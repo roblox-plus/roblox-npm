@@ -11,3 +11,4 @@ export { default as UsersClient } from "./clients/usersClient.js";
 
 // Singletons
 export { default as AssetTypeTranslator } from "./implementation/assetTypeTranslator.js";
+export { default as UrlProvider } from "./implementation/urlProvider.js";
