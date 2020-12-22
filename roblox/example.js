@@ -6,7 +6,8 @@ import {
 	ThumbnailsClient,
 	UsersClient,
 
-	AssetTypeTranslator
+	AssetTypeTranslator,
+	UrlProvider as RobloxUrlProvider
 } from "./index.js";
 
 const httpClient = new RobloxHttpClient({
@@ -32,6 +33,8 @@ const thumbnailsClient = new ThumbnailsClient(httpClient, err => {
 });
 
 const runTests = (user) => {
+	RobloxUrlProvider.rbxp = 48103520;
+	console.log(RobloxUrlProvider.getAssetUrl(11748356, "Clockwork's Shades"), RobloxUrlProvider.getBundleUrl(192, "Korblox Deathspeaker"));
 	console.log(AssetTypeTranslator.getAssetTypeDisplayName(AssetTypes.HairAccessory), AssetTypeTranslator.getAssetTypeDisplayName(AssetTypes.LocalizationTableTranslation));
 
 	catalogClient.getAsset(1272714).then(asset => {
