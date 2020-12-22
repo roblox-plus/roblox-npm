@@ -1,4 +1,13 @@
-import { RobloxHttpClient, CatalogClient, ThumbnailsClient, UsersClient } from "./index.js";
+import {
+	AssetTypes,
+
+	RobloxHttpClient,
+	CatalogClient,
+	ThumbnailsClient,
+	UsersClient,
+
+	AssetTypeTranslator
+} from "./index.js";
 
 const httpClient = new RobloxHttpClient({
 	requestTimeout: 30 * 1000
@@ -23,6 +32,8 @@ const thumbnailsClient = new ThumbnailsClient(httpClient, err => {
 });
 
 const runTests = (user) => {
+	console.log(AssetTypeTranslator.getAssetTypeDisplayName(AssetTypes.HairAccessory), AssetTypeTranslator.getAssetTypeDisplayName(AssetTypes.LocalizationTableTranslation));
+
 	catalogClient.getAsset(1272714).then(asset => {
 		console.log(asset);
 	}).catch(err => {
