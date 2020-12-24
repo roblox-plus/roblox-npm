@@ -51,21 +51,23 @@ export default class {
 		}, this.loadBundles.bind(this), errorHandler);
 
 		this.assetResaleBatchProcessor = new BatchItemProcessor({
+			minProcessDelay: settings.minProcessDelay,
+			processDelay: settings.processDelay,
 			// The asset resale data endpoint does not support batching.
-			// We use the batch processor anyway for the retries, and consistency.
+			// We use the batch processor anyway for consistency and client-side throttling.
 			// Additionally, we can hope someday it might support batching...
-			minProcessDelay: 1000,
-			processDelay: 0,
-			batchSize: 1
+			batchSize: 1,
+			maxAttempts: 1
 		}, this.loadAssetResaleData.bind(this), errorHandler);
 
 		this.assetResellersBatchProcessor = new BatchItemProcessor({
+			minProcessDelay: settings.minProcessDelay,
+			processDelay: settings.processDelay,
 			// The asset resellers endpoint does not support batching.
-			// We use the batch processor anyway for the retries, and consistency.
+			// We use the batch processor anyway for consistency and client-side throttling.
 			// Additionally, we can hope someday it might support batching...
-			minProcessDelay: 1000,
-			processDelay: 0,
-			batchSize: 1
+			batchSize: 1,
+			maxAttempts: 1
 		}, this.loadAssetResellers.bind(this), errorHandler);
 	}
 
