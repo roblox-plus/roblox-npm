@@ -10,10 +10,15 @@ const defaultSettings = {
 
 	batchSize: 100,
 
+	// Roblox supports a multiget for item tags, yay!
+	// Oh.... it's _10_
+	itemTagsBatchSize: 10,
+
 	assetCacheExpiryInMilliseconds: 60 * 1000,
 	bundleCacheExpiryInMilliseconds: 60 * 1000,
 	resaleDataCacheExpiryInMilliseconds: 60 * 1000,
 	resellersDataCacheExpiryInMilliseconds: 60 * 1000,
+	tagsCacheExpiryInMilliseconds: 60 * 1000,
 
 	retryCooldownInMilliseconds: 1000
 };
@@ -25,6 +30,7 @@ export default class {
 		this.bundleCache = {};
 		this.assetResaleCache = {};
 		this.assetResellersCache = {};
+		this.tagsCache = {};
 
 		if (!settings) {
 			settings = {};
@@ -69,6 +75,12 @@ export default class {
 			batchSize: 1,
 			maxAttempts: 1
 		}, this.loadAssetResellers.bind(this), errorHandler);
+
+		this.itemTagsBatchProcessor = new BatchItemProcessor({
+			minProcessDelay: settings.minProcessDelay,
+			processDelay: settings.processDelay,
+			batchSize: settings.itemTagsBatchSize
+		}, this.loadItemTags.bind(this), errorHandler);
 	}
 
 	getAsset(assetId) {
@@ -155,6 +167,26 @@ export default class {
 				}
 
 				resolve(bundle);
+			}).catch(reject);
+		});
+	}
+
+	getAssetTags(assetId) {
+		const cacheKey = `AssetId:${assetId}`;
+		if (this.tagsCache.hasOwnProperty(cacheKey)) {
+			// I suppose there _could_ be a race condition here...
+			return Promise.resolve(this.tagsCache[cacheKey]);
+		}
+
+		return new Promise((resolve, reject) => {
+			this.itemTagsBatchProcessor.push(cacheKey).then(tags => {
+				this.tagsCache[cacheKey] = tags;
+
+				setTimeout(() => {
+					delete this.tagsCache[cacheKey];
+				}, this.settings.tagsCacheExpiryInMilliseconds);
+
+				resolve(tags);
 			}).catch(reject);
 		});
 	}
@@ -371,6 +403,42 @@ export default class {
 						return;
 				}
 			}).catch(reject);
+		});
+	}
+
+	loadItemTags(requests) {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const httpRequest = new HttpRequest(httpMethods.get, new URL(`https://itemconfiguration.roblox.com/v1/item-tags?itemIds=${requests.join(",")}`));
+				const httpResponse = await this.httpClient.send(httpRequest);
+
+				switch (httpResponse.statusCode) {
+					case 200:
+						const responseBody = JSON.parse(httpResponse.body.toString());
+						const tagsByRequest = {};
+
+						responseBody.data.forEach(tags => {
+							tagsByRequest[tags.id] = tags.itemTags.map(t => {
+								return t.tag.localizedDisplayName;
+							});
+						});
+
+						resolve(requests.map(id => {
+							return {
+								item: id,
+								value: tagsByRequest[id] || [],
+								success: true
+							};
+						}));
+
+						return;
+					default:
+						reject(new HttpRequestError(httpRequest, httpResponse));
+						return;
+				}
+			} catch(e) {
+				reject(e);
+			}
 		});
 	}
 
