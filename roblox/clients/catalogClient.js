@@ -8,6 +8,10 @@ const defaultSettings = {
 	processDelay: 100,
 	minProcessDelay: 10 * 1000,
 
+	// The max number of items that can be queued for batching at a single time.
+	// If the queue.length exceeds this, new pushes will be rejected.
+	maxQueueSize: Infinity,
+
 	batchSize: 100,
 
 	// Roblox supports a multiget for item tags, yay!
@@ -47,18 +51,21 @@ export default class {
 		this.assetDetailsBatchProcessor = new BatchItemProcessor({
 			minProcessDelay: settings.minProcessDelay,
 			processDelay: settings.processDelay,
-			batchSize: settings.batchSize
+			batchSize: settings.batchSize,
+			maxQueueSize: settings.maxQueueSize
 		}, this.loadAssets.bind(this), errorHandler);
 
 		this.bundleDetailsBatchProcessor = new BatchItemProcessor({
 			minProcessDelay: settings.minProcessDelay,
 			processDelay: settings.processDelay,
-			batchSize: settings.batchSize
+			batchSize: settings.batchSize,
+			maxQueueSize: settings.maxQueueSize
 		}, this.loadBundles.bind(this), errorHandler);
 
 		this.assetResaleBatchProcessor = new BatchItemProcessor({
 			minProcessDelay: settings.minProcessDelay,
 			processDelay: settings.processDelay,
+			maxQueueSize: settings.maxQueueSize,
 			// The asset resale data endpoint does not support batching.
 			// We use the batch processor anyway for consistency and client-side throttling.
 			// Additionally, we can hope someday it might support batching...
@@ -69,6 +76,7 @@ export default class {
 		this.assetResellersBatchProcessor = new BatchItemProcessor({
 			minProcessDelay: settings.minProcessDelay,
 			processDelay: settings.processDelay,
+			maxQueueSize: settings.maxQueueSize,
 			// The asset resellers endpoint does not support batching.
 			// We use the batch processor anyway for consistency and client-side throttling.
 			// Additionally, we can hope someday it might support batching...
@@ -79,7 +87,8 @@ export default class {
 		this.itemTagsBatchProcessor = new BatchItemProcessor({
 			minProcessDelay: settings.minProcessDelay,
 			processDelay: settings.processDelay,
-			batchSize: settings.itemTagsBatchSize
+			batchSize: settings.itemTagsBatchSize,
+			maxQueueSize: settings.maxQueueSize
 		}, this.loadItemTags.bind(this), errorHandler);
 	}
 
