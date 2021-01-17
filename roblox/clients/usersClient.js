@@ -5,6 +5,10 @@ const defaultSettings = {
 	processDelay: 100,
 	minProcessDelay: 500,
 
+	// The max number of items that can be queued for batching at a single time.
+	// If the queue.length exceeds this, new pushes will be rejected.
+	maxQueueSize: Infinity,
+
 	batchSize: 100,
 
 	cacheExpiry: 60 * 1000,
@@ -33,13 +37,15 @@ export default class {
 		this.usersByNameBatchProcessor = new BatchItemProcessor({
 			minProcessDelay: settings.minProcessDelay,
 			processDelay: settings.processDelay,
-			batchSize: settings.batchSize
+			batchSize: settings.batchSize,
+			maxQueueSize: settings.maxQueueSize
 		}, this.loadUsersByName.bind(this), errorHandler);
 
 		this.usersByIdBatchProcessor = new BatchItemProcessor({
 			minProcessDelay: settings.minProcessDelay,
 			processDelay: settings.processDelay,
-			batchSize: settings.batchSize
+			batchSize: settings.batchSize,
+			maxQueueSize: settings.maxQueueSize
 		}, this.loadUsersById.bind(this), errorHandler);
 	}
 
