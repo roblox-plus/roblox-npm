@@ -44,7 +44,7 @@ export default class {
 	getGroupById(groupId) {
 		if (this.groupsByIdCache.hasOwnProperty(groupId)) {
 			// I suppose there _could_ be a race condition here...
-			return Promise.resolve(this.groupsByIdCache[userId]);
+			return Promise.resolve(this.groupsByIdCache[groupId]);
 		}
 
 		return new Promise((resolve, reject) => {
