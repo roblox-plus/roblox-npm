@@ -91,3 +91,27 @@ const usersClient = new UsersClient(robloxHttpClient, err => {
 	// Users client specific options woooo
 });
 ```
+
+## Groups
+### Example
+```js
+import { RobloxHttpClient, GroupsClient } from "roblox";
+
+const robloxHttpClient = new RobloxHttpClient({
+	// You can put @tix-factory/http HttpClient options here
+	// See: https://www.npmjs.com/package/@tix-factory/http
+});
+
+const groupsClient = new GroupsClient(robloxHttpClient, err => {
+	console.warn("An unexpected error occurred while processing user request", err);
+}, {
+	// Groups client specific options woooo
+});
+
+groupsClient.getGroupById(2518656).then(group => {
+	// We loaded a group!
+	console.log("Group", group);
+}).catch(err => {
+	// oh nooooo
+});
+```
