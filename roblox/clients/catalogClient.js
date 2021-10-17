@@ -27,6 +27,22 @@ const defaultSettings = {
 	retryCooldownInMilliseconds: 1000
 };
 
+const parseAssetPrice = (asset) => {
+	if (asset.priceStatus === "Offsale") {
+		return null;
+	}
+
+	return asset.price === 0 ? 0 : (asset.price || null);
+};
+
+const parseBundlePrice = (bundle) => {
+	if (!bundle.product || bundle.product.noPriceText === "Offsale") {
+		return null;
+	}
+
+	return bundle.product.isPublicDomain ? 0 : (bundle.product.isForSale ? bundle.product.priceInRobux : null);
+};
+
 export default class {
 	constructor(httpClient, errorHandler, settings) {
 		this.httpClient = httpClient;
@@ -228,7 +244,7 @@ export default class {
 					const asset = assetsById[assetId];
 					if (asset) {
 						const itemRestrictions = asset.itemRestrictions || [];
-
+						
 						results.push({
 							item: assetId,
 							value: {
@@ -238,7 +254,7 @@ export default class {
 
 								description: asset.description || "",
 
-								price: asset.price === 0 ? 0 : (asset.price || null),
+								price: parseAssetPrice(asset),
 
 								creator: {
 									id: asset.creatorTargetId,
@@ -310,15 +326,10 @@ export default class {
 								};
 							}),
 
-							price: null,
-							productId: null,
+							price: parseBundlePrice(bundle),
+							productId: bundle.product ? bundle.product.id : null,
 							offSaleDateTime: this.parseDateTime(bundle.offSaleDeadline)
 						};
-
-						if (bundle.product) {
-							resultBundle.productId = bundle.product.id;
-							resultBundle.price = bundle.product.isPublicDomain ? 0 : (bundle.product.isForSale ? bundle.product.priceInRobux : null)
-						}
 
 						results.push({
 							item: bundleId,
