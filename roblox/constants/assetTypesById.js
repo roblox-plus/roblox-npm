@@ -55,5 +55,18 @@ export default {
 	59: "LocalizationTableManifest",
 	60: "LocalizationTableTranslation",
 	61: "Emote",
-	62: "Video"
+	62: "Video",
+	63: "TexturePack",
+	64: "TShirtAccessory",
+	65: "ShirtAccessory",
+	66: "PantsAccessory",
+	67: "JacketAccessory",
+	68: "SweaterAccessory",
+	69: "ShortsAccessory",
+	70: "LeftShoeAccessory",
+	71: "RightShoeAccessory",
+	72: "DressSkirtAccessory",
+	73: "FontFamily",
+	74: "FontFace",
+	75: "MeshHiddenSurfaceRemoval"
 };

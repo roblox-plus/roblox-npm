@@ -55,5 +55,18 @@ export default {
 	"LocalizationTableManifest": "LocalizationTableManifest",
 	"LocalizationTableTranslation": "LocalizationTableTranslation",
 	"Emote": "Emote",
-	"Video": "Video"
+	"Video": "Video",
+	"TexturePack": "TexturePack",
+	"TShirtAccessory": "TShirtAccessory",
+	"ShirtAccessory": "ShirtAccessory",
+	"PantsAccessory": "PantsAccessory",
+	"JacketAccessory": "JacketAccessory",
+	"SweaterAccessory": "SweaterAccessory",
+	"ShortsAccessory": "ShortsAccessory",
+	"LeftShoe Accessory": "LeftShoeAccessory",
+	"RightShoe Accessory": "RightShoeAccessory",
+	"DressSkirt Accessory": "DressSkirtAccessory",
+	"FontFamily": "FontFamily",
+	"FontFace": "FontFace",
+	"MeshHiddenSurfaceRemoval": "MeshHiddenSurfaceRemoval"
 };
